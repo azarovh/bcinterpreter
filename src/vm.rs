@@ -2,9 +2,17 @@ use arrayvec::ArrayVec;
 
 use crate::error::Error;
 
+// 'VM' contains all the business logic for the instruction set.
+// Also it stores the results of the execution.
+//
+// Note: 'VM' is an implementation detail and is not supposed to be used outside its create
 #[derive(Default)]
 pub(crate) struct VM {
-    stack: ArrayVec<i32, 512>,
+    // 'stack' stores all the temporary values between commands execution
+    stack: ArrayVec<i32, 512>, //TODO: make the size customizable
+
+    // 'local' represents local storage for named variables. Vec is chosen as a natural representation of variables on the stack.
+    // Thus it would be easier to implement scopes in the future.
     local: Vec<Var>,
 }
 
@@ -22,6 +30,17 @@ fn unquote_var(varname: &str) -> Option<&str> {
     } else {
         Some(&varname[1..varname.len() - 1])
     }
+}
+
+fn pop2_from_stack(stack: &mut ArrayVec<i32, 512>) -> Result<(i32, i32), Error> {
+    let v1 = stack
+        .pop()
+        .ok_or(Error::Internal("Stack is empty".to_string()))?;
+    let v2 = stack
+        .pop()
+        .ok_or(Error::Internal("Stack is empty".to_string()))?;
+
+    return Ok((v1, v2));
 }
 
 impl VM {
@@ -77,14 +96,7 @@ impl VM {
     }
 
     pub(crate) fn add(&mut self) -> Result<(), Error> {
-        let left = self
-            .stack
-            .pop()
-            .ok_or(Error::Internal("Stack is empty".to_string()))?;
-        let right = self
-            .stack
-            .pop()
-            .ok_or(Error::Internal("Stack is empty".to_string()))?;
+        let (left, right) = pop2_from_stack(&mut self.stack)?;
 
         if let Err(_) = self.stack.try_push(left + right) {
             Err(Error::StackOverflow)
@@ -94,14 +106,7 @@ impl VM {
     }
 
     pub(crate) fn sub(&mut self) -> Result<(), Error> {
-        let left = self
-            .stack
-            .pop()
-            .ok_or(Error::Internal("Stack is empty".to_string()))?;
-        let right = self
-            .stack
-            .pop()
-            .ok_or(Error::Internal("Stack is empty".to_string()))?;
+        let (left, right) = pop2_from_stack(&mut self.stack)?;
 
         if let Err(_) = self.stack.try_push(left - right) {
             Err(Error::StackOverflow)
@@ -111,14 +116,7 @@ impl VM {
     }
 
     pub(crate) fn mul(&mut self) -> Result<(), Error> {
-        let left = self
-            .stack
-            .pop()
-            .ok_or(Error::Internal("Stack is empty".to_string()))?;
-        let right = self
-            .stack
-            .pop()
-            .ok_or(Error::Internal("Stack is empty".to_string()))?;
+        let (left, right) = pop2_from_stack(&mut self.stack)?;
 
         if let Err(_) = self.stack.try_push(left * right) {
             Err(Error::StackOverflow)
@@ -128,14 +126,7 @@ impl VM {
     }
 
     pub(crate) fn div(&mut self) -> Result<(), Error> {
-        let left = self
-            .stack
-            .pop()
-            .ok_or(Error::Internal("Stack is empty".to_string()))?;
-        let right = self
-            .stack
-            .pop()
-            .ok_or(Error::Internal("Stack is empty".to_string()))?;
+        let (left, right) = pop2_from_stack(&mut self.stack)?;
 
         if let Err(_) = self.stack.try_push(left / right) {
             Err(Error::StackOverflow)
@@ -151,15 +142,7 @@ impl VM {
     }
 
     pub(crate) fn is_eq(&mut self) -> Result<bool, Error> {
-        let left = self
-            .stack
-            .pop()
-            .ok_or(Error::Internal("Stack is empty".to_string()))?;
-        let right = self
-            .stack
-            .pop()
-            .ok_or(Error::Internal("Stack is empty".to_string()))?;
-
+        let (left, right) = pop2_from_stack(&mut self.stack)?;
         Ok(left == right)
     }
 }
