@@ -6,7 +6,7 @@ use bcinterpreter::Interpreter;
 #[test]
 fn load_val() {
     let bytecode = "LOAD_VAL 1
-            			RETURN_VALUE";
+                          RETURN_VALUE";
     let mut ip = Interpreter::new(bytecode);
     assert_eq!(1, ip.run().unwrap());
 }
@@ -14,7 +14,7 @@ fn load_val() {
 #[test]
 fn failed_load_val() {
     let bytecode = "LOAD_VAL f
-		            	RETURN_VALUE";
+                          RETURN_VALUE";
     let mut ip = Interpreter::new(bytecode);
     let err = ip.run().unwrap_err();
     assert!(matches!(err, Error::Syntax { .. }));
@@ -23,9 +23,9 @@ fn failed_load_val() {
 #[test]
 fn sum_2_values() {
     let bytecode = "LOAD_VAL 1
-    	                LOAD_VAL 2
-            			ADD
-            			RETURN_VALUE";
+                          LOAD_VAL 2
+                          ADD
+                          RETURN_VALUE";
     let mut ip = Interpreter::new(bytecode);
     assert_eq!(3, ip.run().unwrap());
 }
@@ -33,10 +33,10 @@ fn sum_2_values() {
 #[test]
 fn read_variable() {
     let bytecode = "LOAD_VAL 1
-    	                WRITE_VAR 'x'
-    	                READ_VAR 'x'
+                          WRITE_VAR 'x'
+                          READ_VAR 'x'
 
-            			RETURN_VALUE";
+                          RETURN_VALUE";
     let mut ip = Interpreter::new(bytecode);
     assert_eq!(1, ip.run().unwrap());
 }
@@ -44,19 +44,19 @@ fn read_variable() {
 #[test]
 fn example() {
     let bytecode = "LOAD_VAL 1
-                        WRITE_VAR 'x'
+                          WRITE_VAR 'x'
 
-       	                LOAD_VAL 2
-    	                WRITE_VAR 'y'
-
-    	                READ_VAR 'x'
-    	                LOAD_VAL 1
-    	                ADD
-
-    	                READ_VAR 'y'
-    	                MULTIPLY
-			
-            			RETURN_VALUE";
+                          LOAD_VAL 2
+                          WRITE_VAR 'y'
+                          
+                          READ_VAR 'x'
+                          LOAD_VAL 1
+                          ADD
+                          
+                          READ_VAR 'y'
+                          MULTIPLY
+                          			
+                          RETURN_VALUE";
     let mut ip = Interpreter::new(bytecode);
     assert_eq!(4, ip.run().unwrap());
 }
@@ -64,20 +64,20 @@ fn example() {
 #[test]
 fn simple_loop() {
     let bytecode = "LOAD_VAL 1
-                        WRITE_VAR 'x'
-
-            			LOAD_VAL 5
-                        READ_VAR 'x'
-
-    	                JUMP_IF_EQ
-    			        LOAD_VAL 1
-                        READ_VAR 'x'
-            			ADD
-                        WRITE_VAR 'x'
-            			END
-
-                        READ_VAR 'x'
-            			RETURN_VALUE";
+                          WRITE_VAR 'x'
+                          
+                          LOAD_VAL 5
+                          READ_VAR 'x'
+                          
+                          JUMP_IF_EQ
+                          LOAD_VAL 1
+                          READ_VAR 'x'
+                          ADD
+                          WRITE_VAR 'x'
+                          END
+                          
+                          READ_VAR 'x'
+                          RETURN_VALUE";
     let mut ip = Interpreter::new(bytecode);
     assert_eq!(5, ip.run().unwrap());
 }
@@ -85,12 +85,12 @@ fn simple_loop() {
 #[test]
 fn broken_loop() {
     let bytecode = "JUMP_IF_EQ
-			            LOAD_VAL 1
-                        READ_VAR 'x'
-			            ADD
-                        WRITE_VAR 'x'
-
-            			RETURN_VALUE";
+                          LOAD_VAL 1
+                          READ_VAR 'x'
+                          ADD
+                          WRITE_VAR 'x'
+                          
+                          RETURN_VALUE";
     let mut ip = Interpreter::new(bytecode);
     let err = ip.run().unwrap_err();
     assert!(matches!(err, Error::Internal { .. }));
