@@ -15,8 +15,8 @@ impl Interpreter {
         Interpreter {
             bytecode: bytecode
                 .lines()
-                .filter(|v| !v.is_empty())
                 .map(|v| v.trim().to_string())
+                .filter(|v| !v.is_empty())
                 .collect(),
             ..Default::default()
         }
